@@ -1,0 +1,315 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Elige tu compañía</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible+Next:wght@400;700;800&family=Atkinson+Hyperlegible:wght@400;700&display=swap">
+<style>
+/* Una sola columna y una decisión por pantalla: escuchar, elegir voz, elegir nombre.
+   Letra Atkinson Hyperlegible (diseñada para baja visión), botones de al menos 64 px.
+   Funciona sin conexión abriendo el fichero; sin internet usa la letra del sistema. */
+:root {
+  --fondo: #f2f5f4;
+  --papel: #ffffff;
+  --tinta: #1b2a29;
+  --tenue: #4d5f5d;
+  --acento: #1d6a66;
+  --acento-texto: #ffffff;
+  --suave: #e1ecea;
+  --elegida: #b7791f;
+  --borde: #c9d6d3;
+  --display: "Atkinson Hyperlegible Next", "Atkinson Hyperlegible", system-ui, sans-serif;
+  --cuerpo: "Atkinson Hyperlegible", system-ui, sans-serif;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --fondo: #111918; --papel: #1a2423; --tinta: #e9f0ee; --tenue: #a9bab7;
+    --acento: #5cbfb6; --acento-texto: #0d1a19; --suave: #23312f; --elegida: #e3ad55; --borde: #34443f;
+    color-scheme: dark;
+  }
+}
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0; background: var(--fondo); color: var(--tinta);
+  font-family: var(--cuerpo); font-size: 1.375rem; line-height: 1.5;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: max(24px, env(safe-area-inset-top, 0px)) max(48px, env(safe-area-inset-bottom, 0px));
+}
+main { max-width: 42rem; margin: 0 auto; display: grid; gap: 28px; }
+h1, h2 { font-family: var(--display); font-weight: 800; line-height: 1.15; text-wrap: balance; margin: 0; }
+h1 { font-size: 2.25rem; }
+h2 { font-size: 1.75rem; }
+p { margin: 0; }
+.ayuda { color: var(--tenue); }
+.paso { display: grid; gap: 20px; }
+.voces { display: grid; gap: 18px; list-style: none; margin: 0; padding: 0; }
+.voz {
+  background: var(--papel); border: 2px solid var(--borde); border-radius: 20px;
+  padding: 18px; display: grid; gap: 16px;
+}
+.voz.oida { border-color: var(--acento); }
+.voz-cabecera { display: grid; grid-template-columns: auto 1fr; gap: 4px 18px; align-items: center; }
+.voz-nombre { font-family: var(--display); font-weight: 800; font-size: 1.6rem; }
+.voz-estado { color: var(--tenue); font-size: 1.1rem; min-width: 0; }
+button {
+  font: inherit; font-weight: 700; cursor: pointer; border-radius: 999px; min-height: 64px;
+  padding: 0 26px; border: 2px solid var(--acento); background: var(--papel); color: var(--acento);
+}
+button:focus-visible, input:focus-visible { outline: 4px solid var(--elegida); outline-offset: 3px; }
+.escuchar {
+  width: 84px; height: 84px; padding: 0; grid-row: span 2;
+  background: var(--acento); color: var(--acento-texto); display: grid; place-items: center;
+}
+.escuchar svg { width: 38px; height: 38px; fill: currentColor; }
+.pistas { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.pista {
+  min-height: 56px; font-size: 1.1rem; padding: 0 12px; border-radius: 14px;
+  border-color: var(--borde); color: var(--tinta);
+}
+.pista[aria-pressed="true"] { background: var(--suave); border-color: var(--acento); color: var(--acento); }
+.barra { height: 8px; border-radius: 999px; background: var(--suave); overflow: hidden; }
+.barra span { display: block; height: 100%; width: 0; background: var(--acento); }
+.elegir { width: 100%; }
+.principal { background: var(--acento); color: var(--acento-texto); width: 100%; }
+.secundario { border-color: var(--borde); color: var(--tinta); width: 100%; }
+.nombres { display: grid; grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr)); gap: 14px; }
+.nombre { min-height: 80px; font-size: 1.6rem; font-family: var(--display); font-weight: 800; border-radius: 18px; }
+.nombre[aria-pressed="true"] { background: var(--acento); color: var(--acento-texto); }
+label { font-weight: 700; display: block; margin-bottom: 8px; }
+input[type="text"] {
+  font: inherit; width: 100%; min-height: 64px; padding: 0 18px; border-radius: 16px;
+  border: 2px solid var(--borde); background: var(--papel); color: var(--tinta);
+}
+.resultado { background: var(--papel); border: 3px solid var(--elegida); border-radius: 24px; padding: 28px 22px; display: grid; gap: 14px; text-align: center; }
+.resultado .grande { font-family: var(--display); font-weight: 800; font-size: 3rem; line-height: 1.1; color: var(--elegida); overflow-wrap: anywhere; }
+.familia { font-size: 1rem; color: var(--tenue); border-top: 1px solid var(--borde); padding-top: 14px; }
+.acciones { display: grid; gap: 14px; }
+@media (max-width: 360px) { .pistas { grid-template-columns: minmax(0, 1fr); } }
+@media (prefers-reduced-motion: no-preference) { .voz { transition: border-color .2s; } }
+</style>
+</head>
+<body>
+<main>
+  <header class="paso">
+    <h1>Elige tu compañía</h1>
+    <p class="ayuda">Vas a tener compañía para charlar. Escucha cómo habla cada voz y quédate con la que más te guste.</p>
+  </header>
+
+  <section class="paso" id="paso-voz" aria-labelledby="t-voz">
+    <h2 id="t-voz">1. Escucha las voces</h2>
+    <p class="ayuda">El botón redondo pone la voz entera, algo más de un minuto y medio. Para oír solo una parte, toca su nombre debajo.</p>
+    <ol class="voces" id="voces"></ol>
+  </section>
+
+  <section class="paso" id="paso-nombre" aria-labelledby="t-nombre" hidden>
+    <h2 id="t-nombre">2. ¿Cómo quieres que se llame?</h2>
+    <p class="ayuda" id="ayuda-nombre"></p>
+    <div class="nombres" id="nombres"></div>
+    <div>
+      <label for="otro-nombre">Otro nombre</label>
+      <input type="text" id="otro-nombre" autocomplete="off" placeholder="Escríbelo aquí">
+    </div>
+    <div class="acciones">
+      <button class="principal" id="confirmar" disabled>Ya está</button>
+      <button class="secundario" id="volver-voz">Volver a las voces</button>
+    </div>
+  </section>
+
+  <section class="paso" id="paso-fin" aria-labelledby="t-fin" hidden>
+    <h2 id="t-fin">¡Elegido!</h2>
+    <div class="resultado">
+      <p id="fin-frase"></p>
+      <p class="grande" id="fin-nombre"></p>
+      <p id="fin-voz"></p>
+      <p class="familia" id="fin-familia"></p>
+    </div>
+    <div class="acciones">
+      <button class="principal" id="enviar">Enviar a la familia</button>
+      <p class="ayuda" id="enviado" hidden>Si no se ha abierto WhatsApp, díselo por teléfono: lo tienes escrito arriba.</p>
+      <button class="secundario" id="oir-otra-vez">Oír su voz otra vez</button>
+      <button class="secundario" id="reiniciar">Empezar de nuevo</button>
+    </div>
+  </section>
+</main>
+
+<script>
+// Orden fijo y nombres neutros: ella no ve proveedores ni nombres comerciales.
+const VOCES = [
+  { id: "voz1", genero: "f", familia: "Cristina · ElevenLabs v3" },
+  { id: "voz2", genero: "f", familia: "Ximena HD · Azure" },
+  { id: "voz3", genero: "m", familia: "Rafa · ElevenLabs v3" },
+  { id: "voz4", genero: "f", familia: "Lydia · ElevenLabs v3" },
+  { id: "voz5", genero: "f", familia: "Sara Martin · ElevenLabs v3" },
+];
+const PISTAS = [
+  { id: "conversacion", nombre: "Charlando" },
+  { id: "alegre", nombre: "Leyendo el Quijote" },
+  { id: "emotiva", nombre: "Un poema" },
+  { id: "aviso", nombre: "Un aviso (de ejemplo)" },
+];
+const NOMBRES = { f: ["Lola", "Elena", "Rosa", "Marisa"], m: ["Rafa", "Andrés", "Luis"] };
+const ICONO_PLAY = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>';
+const ICONO_PARAR = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 6h4v12H7zM13 6h4v12h-4z"/></svg>';
+
+const $ = (id) => document.getElementById(id);
+// ?para=Nombre personaliza el botón de enviar (el nombre solo va en el enlace, no en la página)
+const PARA = (new URLSearchParams(location.search).get("para") || "").trim().slice(0, 30);
+const audio = new Audio();
+audio.preload = "auto";
+// sonando = { voz, pista, todo }: "todo" encadena las pistas siguientes
+let sonando = null, eleccion = { voz: null, nombre: null };
+
+function guardar() { try { localStorage.setItem("eleccion-voz", JSON.stringify(eleccion)); } catch (e) {} }
+const tarjeta = (voz) => document.querySelector(`[data-voz="${voz}"]`);
+
+function pintar(voz) {
+  const t = tarjeta(voz);
+  if (!t) return;
+  const activa = sonando && sonando.voz === voz;
+  const boton = t.querySelector(".escuchar");
+  boton.innerHTML = activa ? ICONO_PARAR : ICONO_PLAY;
+  boton.setAttribute("aria-label", activa ? "Parar" : "Escuchar esta voz entera");
+  t.querySelectorAll("[data-pista]").forEach((b) =>
+    b.setAttribute("aria-pressed", String(activa && b.dataset.pista === sonando.pista)));
+  if (activa) {
+    const i = PISTAS.findIndex((p) => p.id === sonando.pista);
+    const nombre = PISTAS[i].nombre;
+    t.querySelector(".voz-estado").textContent = `Sonando: ${nombre[0].toLowerCase() + nombre.slice(1)} · ${i + 1} de ${PISTAS.length}`;
+  } else if (t.classList.contains("oida")) {
+    t.querySelector(".voz-estado").textContent = "Ya la has oído";
+    t.querySelector(".barra span").style.width = "0";
+  }
+}
+
+function parar() {
+  audio.pause();
+  if (sonando) { const voz = sonando.voz; sonando = null; pintar(voz); }
+}
+
+function reproducir(voz, pista, todo) {
+  const anterior = sonando && sonando.voz;
+  audio.pause();
+  const actual = sonando = { voz, pista, todo };
+  if (anterior && anterior !== voz) pintar(anterior);
+  audio.src = `audio/${voz}-${pista}.mp3`;
+  // Cambiar de pista cancela el play() anterior: solo se para si sigue siendo esta reproducción.
+  audio.play().catch(() => { if (sonando === actual) parar(); });
+  tarjeta(voz).classList.add("oida");
+  pintar(voz);
+}
+
+audio.addEventListener("timeupdate", () => {
+  if (!sonando || !audio.duration) return;
+  const i = PISTAS.findIndex((p) => p.id === sonando.pista);
+  const parte = sonando.todo ? (i + audio.currentTime / audio.duration) / PISTAS.length : audio.currentTime / audio.duration;
+  tarjeta(sonando.voz).querySelector(".barra span").style.width = `${Math.min(100, parte * 100)}%`;
+});
+audio.addEventListener("ended", () => {
+  if (!sonando) return;
+  const i = PISTAS.findIndex((p) => p.id === sonando.pista);
+  if (sonando.todo && i < PISTAS.length - 1) reproducir(sonando.voz, PISTAS[i + 1].id, true);
+  else parar();
+});
+
+function pintarVoces() {
+  $("voces").innerHTML = VOCES.map((v, i) => `
+    <li class="voz" data-voz="${v.id}">
+      <div class="voz-cabecera">
+        <button class="escuchar" data-escuchar="${v.id}" aria-label="Escuchar esta voz entera">${ICONO_PLAY}</button>
+        <span class="voz-nombre">Voz ${i + 1}</span>
+        <span class="voz-estado">Sin escuchar</span>
+      </div>
+      <div class="barra" aria-hidden="true"><span></span></div>
+      <div class="pistas">
+        ${PISTAS.map((p) => `<button class="pista" data-voz-pista="${v.id}" data-pista="${p.id}" aria-pressed="false">${p.nombre}</button>`).join("")}
+      </div>
+      <button class="elegir" data-elegir="${v.id}">Me gusta esta</button>
+    </li>`).join("");
+}
+
+function mostrar(paso) {
+  for (const id of ["paso-voz", "paso-nombre", "paso-fin"]) $(id).hidden = id !== paso;
+  window.scrollTo({ top: 0 });
+}
+
+function elegirVoz(id) {
+  parar();
+  eleccion = { voz: id, nombre: null }; guardar();
+  const voz = VOCES.find((v) => v.id === id);
+  $("ayuda-nombre").textContent = `Has elegido la voz ${VOCES.indexOf(voz) + 1}. Toca el nombre que más te guste, o escribe otro.`;
+  $("nombres").innerHTML = NOMBRES[voz.genero].map((n) =>
+    `<button class="nombre" data-nombre="${n}" aria-pressed="false">${n}</button>`).join("");
+  $("otro-nombre").value = "";
+  $("confirmar").disabled = true;
+  mostrar("paso-nombre");
+}
+
+function elegirNombre(nombre) {
+  eleccion.nombre = nombre.trim() || null; guardar();
+  document.querySelectorAll("[data-nombre]").forEach((b) =>
+    b.setAttribute("aria-pressed", String(b.dataset.nombre === eleccion.nombre)));
+  $("confirmar").disabled = !eleccion.nombre;
+}
+
+function terminar() {
+  const voz = VOCES.find((v) => v.id === eleccion.voz);
+  $("fin-frase").textContent = voz.genero === "m" ? "Tu compañero se llamará" : "Tu compañera se llamará";
+  $("fin-nombre").textContent = eleccion.nombre;
+  $("fin-voz").textContent = `con la voz ${VOCES.indexOf(voz) + 1}`;
+  $("fin-familia").textContent = `Para la familia: ${voz.familia}`;
+  $("enviar").textContent = PARA ? `Enviárselo a ${PARA}` : "Enviárselo a la familia";
+  $("enviado").hidden = true;
+  mostrar("paso-fin");
+}
+
+document.addEventListener("click", (e) => {
+  const b = e.target.closest("button");
+  if (!b) return;
+  if (b.dataset.escuchar) {
+    const voz = b.dataset.escuchar;
+    if (sonando && sonando.voz === voz) parar(); else reproducir(voz, PISTAS[0].id, true);
+  } else if (b.dataset.vozPista) {
+    const { vozPista: voz, pista } = b.dataset;
+    if (sonando && sonando.voz === voz && sonando.pista === pista) parar(); else reproducir(voz, pista, false);
+  } else if (b.dataset.elegir) elegirVoz(b.dataset.elegir);
+  else if (b.dataset.nombre) { $("otro-nombre").value = ""; elegirNombre(b.dataset.nombre); }
+  else if (b.id === "confirmar") terminar();
+  else if (b.id === "volver-voz") mostrar("paso-voz");
+  else if (b.id === "enviar") enviarEleccion();
+  else if (b.id === "oir-otra-vez") { sonando = null; audio.src = `audio/${eleccion.voz}-conversacion.mp3`; audio.play().catch(() => {}); }
+  else if (b.id === "reiniciar") { parar(); eleccion = { voz: null, nombre: null }; guardar(); pintarVoces(); mostrar("paso-voz"); }
+});
+$("otro-nombre").addEventListener("input", (e) => elegirNombre(e.target.value));
+
+function textoEleccion() {
+  const voz = VOCES.find((v) => v.id === eleccion.voz);
+  return `He elegido la voz ${VOCES.indexOf(voz) + 1} (${voz.familia}) y el nombre ${eleccion.nombre}.`;
+}
+
+async function enviarEleccion() {
+  const texto = textoEleccion();
+  $("enviado").hidden = false;
+  if (navigator.share) {
+    try { await navigator.share({ text: texto }); return; }
+    catch (e) { if (e && e.name === "AbortError") return; }
+  }
+  location.href = `https://wa.me/?text=${encodeURIComponent(texto)}`;
+}
+
+pintarVoces();
+try {
+  const previa = JSON.parse(localStorage.getItem("eleccion-voz") || "null");
+  if (previa && previa.voz && previa.nombre && VOCES.some((v) => v.id === previa.voz)) {
+    elegirVoz(previa.voz); eleccion.nombre = previa.nombre; guardar(); terminar();
+  }
+} catch (e) {}
+</script>
+</body>
+</html>
